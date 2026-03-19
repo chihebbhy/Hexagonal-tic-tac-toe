@@ -2,10 +2,14 @@
 
 body {
     background: cadetblue;
+    overflow: auto;
+    height: auto;
+    width: fit-content;
 }
 .map {
     display: flex;
     flex-direction: column;
+    width: max-content;
 }
 .row:nth-child(even) {
     
@@ -14,19 +18,17 @@ body {
 .row {
     display: flex;
     justify-content: center;
-    gap: 2px;
-    margin-top: -51px; /* overlap hex rows properly */
+    clear: left;
 }
 
 .hex {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: auto;
+    float :left ;
+    margin-left: 3px;
+    margin-bottom: -40px;
 }
 .top {
     width: 0;
-    height: 12px;
+    height: 0px;
     border-bottom: 30px solid #6C6;
     border-left: 52px solid transparent;
     border-right: 52px solid transparent;
