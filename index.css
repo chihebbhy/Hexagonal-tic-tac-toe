@@ -24,7 +24,7 @@ body {
 .hex {
     float :left ;
     margin-left: 3px;
-    margin-bottom: -40px;
+    margin-bottom: -28px;
 }
 .top {
     width: 0;
@@ -38,11 +38,20 @@ body {
     width: 104px;
     height: 60px;
     background-color: #6C6;
+    text-align: center;
+    font-size: 250%;
+    color: rgb(164, 79, 79);
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 1000;
+    
 }
 
+.top .mid .bot{
+    pointer-events: none;
+}
 .bot {
     width: 0;
-    height: 12px;
+    height: 0px;
     border-top: 30px solid #6C6;
     border-left: 52px solid transparent;
     border-right: 52px solid transparent;
