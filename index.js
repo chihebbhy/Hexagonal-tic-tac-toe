@@ -25,7 +25,6 @@ function createHex() {
             let top = document.createElement("div");
             let mid = document.createElement("div");
             let bot = document.createElement("div");
-            mid.innerHTML = `${j}/${i}`;
             top.classList.add('top', `top${j}/${i}`);
             mid.classList.add('mid', `mid${j}/${i}`);
             bot.classList.add('bot', `bot${j}/${i}`);
