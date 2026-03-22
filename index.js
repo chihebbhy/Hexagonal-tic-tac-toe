@@ -36,20 +36,13 @@ function createHex() {
 }
 function Click(e) {
     const hex = e.currentTarget;
-    let row = hex.dataset.row;
-    let col = hex.dataset.col;
+    let row = parseInt(hex.dataset.row);
+    let col = parseInt(hex.dataset.col);
     if (hex.classList.contains("played")) {
         return;
     }
-    // Write the player's symbol on the hex
-    Write(toPlay, row, col);
-
-    // Check if the player won
-    if (CheckWin(toPlay, row, col)) {
-        alert(`${toPlay} wins!`);
-    }
     // "XOOXXOOXXOOXXOO..."
-    if (turn == 0 || turn % 4 == 0 || turn % 4 == 3) {
+    if (turn == 0 || (turn % 4) == 0 || (turn % 4) == 3) {
         // X's turn
         toPlay = "X"
         turn++;
@@ -58,7 +51,13 @@ function Click(e) {
         toPlay = "O"
         turn++;
     }
+    // Write the player's symbol on the hex
+    Write(toPlay, row, col);
 
+    // Check if the player won
+    if (CheckWin(toPlay, row, col)) {
+        alert(`${toPlay} wins!`);
+    }
 }
 
 function Write(player, row, col) {
@@ -69,7 +68,6 @@ function Write(player, row, col) {
     const bot = hex.querySelector('.bot');
 
     map[row][col] = player;
-    console.log(`you pressed [${row}][${col}]`);
     const color = player === "X" ? "#C66" : "#66C";
     const color2 = player === "X" ? "#66C" : "#C66";
 
@@ -88,9 +86,40 @@ function Write(player, row, col) {
 
 
 function CheckWin(Player, row, col) {
-    console.log(map);
-    //const neighbors = getNeighbors(row, col);
+    const pairs = [
+        [[-1, -1], [1, 0]], // top-left ↔ bottom-right
+        [[-1, 0], [1, 1]],  // top-right ↔ bottom-left
+        [[0, -1], [0, 1]]   // left ↔ right
+    ];
+    for (const [dir1, dir2] of pairs) {
+        let count = 1;
+        let r = row;
+        let c = col;
+        let i = 1;
+        while (true) {
+            const even = r % 2 === 0;
+            const [dr, dc] = even ? dir1 : [dir1[0], dir1[1] + (dir1[0] !== 0 ? 1 : 0)]; // adjust odd row
+            r += dr;
+            c += dc;
+            if (r < 0 || r >= width || c < 0 || c >= height) break;
+            if (map[r][c] == Player) count++
+            else break;
+            if (count >= 6) break;
+        }
+        r = row; c = col;
+        while (true) {
+            const even = r % 2 === 0;
+            const [dr, dc] = even ? dir2 : [dir2[0], dir2[1] + (dir2[0] !== 0 ? 1 : 0)];
+            r += dr;
+            c += dc;
+            if (r < 0 || r >= width || c < 0 || c >= height) break;
+            if (map[r][c] == Player) count++
+            else break;
+            if (count >= 6) break;
+        }
+        if (count >= winCount) return true;
 
+    }
     return false;
 }
 
@@ -132,10 +161,7 @@ function areNeighbors(row1, col1, row2, col2) {
 }
 
 */
-function StartGame() {
-    createHex();
-    centerView();
-}
+
 
 // Scroll the center hex into view
 function centerView() {
@@ -154,5 +180,12 @@ function centerView() {
         inline: "center"
     });
 }
+
+function StartGame() {
+    createHex();
+    centerView();
+}
+
+
 StartGame();
 
