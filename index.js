@@ -5,6 +5,10 @@ const winCount = 6;
 let map = [];
 let turn = 0;
 let toPlay = "X";
+let mySymbol = null;
+let currentRoom = null;
+let winner = null;
+
 function createHex() {
     for (let j = 0; j < height; j++) {
         // Create a row
@@ -35,34 +39,79 @@ function createHex() {
     }
 }
 function Click(e) {
+    if(winner){
+        alert(`${winner} has already won!`);
+        return;
+    }
     const hex = e.currentTarget;
     let row = parseInt(hex.dataset.row);
     let col = parseInt(hex.dataset.col);
+
     if (hex.classList.contains("played")) {
         return;
     }
-    // "XOOXXOOXXOOXXOO..."
-    if (turn == 0 || (turn % 4) == 0 || (turn % 4) == 3) {
+    alert("click");
+    // offline mode
+    if (!currentRoom || currentRoom == "000000") {
+        // "XOOXXOOXXOOXXOO..."
+        if (turn == 0 || (turn % 4) == 0 || (turn % 4) == 3) {
+            // X's turn
+            toPlay = "X"
+        } else {
+            // O's turn
+            toPlay = "O"
+        }
+        turn++;
+        Write(toPlay, row, col);
+        if (CheckWin(toPlay, row, col)) {
+            alert(`${toPlay} wins!`);
+            winner = toPlay;
+        }
+        return;
+    }
+
+    // online mode ----------------------------------------------------------
+    if (!mySymbol) {
+        alert("no symbol assigned yet");
+        return;
+    }
+    if (toPlay != mySymbol) {
+        alert("Not your turn!");
+        return;
+    }
+    map[row][col] = mySymbol;
+    Write(mySymbol, row, col);
+    if ((turn % 4) == 0 || (turn % 4) == 3) {
         // X's turn
         toPlay = "X"
-        turn++;
-    } else {
+    }
+    else {
         // O's turn
         toPlay = "O"
-        turn++;
     }
-    // Write the player's symbol on the hex
-    Write(toPlay, row, col);
+    turn++;
+    if (CheckWin(mySymbol, row, col)) {
+        alert(`${mySymbol} wins!`);
+        winner = mySymbol;
+    }
 
-    // Check if the player won
-    if (CheckWin(toPlay, row, col)) {
-        alert(`${toPlay} wins!`);
-    }
+    update(ref(db, "games/" + currentRoom), {
+        board: map,
+        turn: turn,
+        winner: winner || null
+    });
+
+
+
 }
 
 function Write(player, row, col) {
     const hex = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-
+    if (player == "") {
+        map[row][col] = "";
+        hex.classList.remove("played");
+        return;
+    }
     const top = hex.querySelector('.top');
     const mid = hex.querySelector('.mid');
     const bot = hex.querySelector('.bot');
@@ -79,9 +128,7 @@ function Write(player, row, col) {
     bot.style.borderTopColor = color;
 
     mid.innerHTML = player;
-
     hex.classList.add("played");
-
 }
 
 
@@ -123,6 +170,14 @@ function CheckWin(Player, row, col) {
     return false;
 }
 
+function redrawBoard() {
+    for (let r = 0; r < height; r++) {
+        for (let c = 0; c < width; c++) {
+            const value = map[r][c];
+            Write(value, r, c);
+        }
+    }
+}
 /*
 function getNeighbors(row, col) {
     const neighbors = [];
@@ -181,11 +236,121 @@ function centerView() {
     });
 }
 
-function StartGame() {
+function hideMenu() {
+    const menu = document.getElementById("menu");
+    menu.style.display = "none";
+}
+function StartGame(roomCode) {
+    /*const code = document.getElementById("Code");
+    if (roomCode == "000000") {
+        code.style.display = "none";
+    } else {
+        code.innerHTML = `Room Code: ${roomCode}`;
+    }
+*/
+    hideMenu();
     createHex();
     centerView();
+
+}
+// Room code is 6 characters long, consisting of uppercase letters and numbers
+function createRoom() {
+    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const playerName = document.getElementById("create-username").value || "Player1";
+    mySymbol = "X";
+    let initialMap = [];
+
+    for (let j = 0; j < height; j++) {
+        initialMap[j] = [];
+        for (let i = 0; i < width; i++) {
+            initialMap[j][i] = "";
+        }
+    }
+
+
+    set(ref(db, "games/" + roomCode), {
+        board: initialMap,
+        turn: turn,
+        players: {
+            X: {
+                id: Date.now(),
+                name: playerName
+            },
+            O: null
+        }
+    });
+
+    return roomCode;
 }
 
 
-StartGame();
+// Join a game with a room code
+function joinRoom(roomCode) {
+    const playerName = document.getElementById("join-username").value || "Player2";
+    currentRoom = roomCode;
+    mySymbol = "O";
 
+    // supose the bd exists 
+    update(ref(db, "games/" + currentRoom + "/players"), {
+        O: {
+            id: Date.now(),
+            name: playerName
+        }
+    });
+
+}
+
+// Listen for changes in the game state and update the board accordingly
+function listenGame(roomCode) {
+    onValue(ref(db, "games/" + roomCode), (snapshot) => {
+        const data = snapshot.val();
+        console.log("Data updated:", data);
+        if (!data) return;
+
+        map = data.board;
+        turn = data.turn;
+        winner = data.winner || null;
+        if ((turn % 4) == 0 || (turn % 4) == 3) {
+            // X's turn
+            toPlay = "X"
+        } else {
+            // O's turn
+            toPlay = "O"
+        }
+
+        const playerX = data.players.X?.name || "Waiting...";
+        const playerO = data.players.O?.name || "Waiting...";
+
+        document.getElementById("playerX").innerText = "X: " + playerX;
+        document.getElementById("playerO").innerText = "O: " + playerO;
+
+        redrawBoard();
+        if (winner){
+            alert(`${winner} wins!`);
+        }
+
+    });
+}
+
+
+function onCreateRoomClick() {
+    const roomCode = createRoom();
+    currentRoom = roomCode;
+
+    alert(`Room created! Share this code with your friend: ${currentRoom}`);
+    StartGame(currentRoom);
+    listenGame(currentRoom);
+
+}
+
+function onJoinRoomClick() {
+    const roomCode = document.getElementById("join-game-id").value.toUpperCase();
+    if (!roomCode) {
+        alert("Please enter a room code.");
+        return;
+    }
+    currentRoom = roomCode;
+    joinRoom(currentRoom);
+    StartGame(currentRoom);
+    listenGame(currentRoom);
+}
