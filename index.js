@@ -1,6 +1,6 @@
 const parent = document.getElementById("map");
-const height = 30;
-const width = 30;
+const height = 50;
+const width = 50;
 const winCount = 6;
 let map = [];
 let turn = 0;
@@ -25,9 +25,10 @@ function createHex() {
             let top = document.createElement("div");
             let mid = document.createElement("div");
             let bot = document.createElement("div");
+            mid.innerHTML = `${j}/${i}`;
             top.classList.add('top', `top${j}/${i}`);
-            mid.classList.add('mid', `mid${j}/${i}]`);
-            bot.classList.add('bot', `bot${j}/${i}]`);
+            mid.classList.add('mid', `mid${j}/${i}`);
+            bot.classList.add('bot', `bot${j}/${i}`);
             hex.appendChild(top);
             hex.appendChild(mid);
             hex.appendChild(bot);
@@ -88,7 +89,7 @@ function Write(player, row, col) {
 function CheckWin(Player, row, col) {
     const pairs = [
         [[-1, -1], [1, 0]], // top-left ↔ bottom-right
-        [[-1, 0], [1, 1]],  // top-right ↔ bottom-left
+        [[-1, 0], [1, -1]],  // top-right ↔ bottom-left
         [[0, -1], [0, 1]]   // left ↔ right
     ];
     for (const [dir1, dir2] of pairs) {
@@ -101,7 +102,7 @@ function CheckWin(Player, row, col) {
             const [dr, dc] = even ? dir1 : [dir1[0], dir1[1] + (dir1[0] !== 0 ? 1 : 0)]; // adjust odd row
             r += dr;
             c += dc;
-            if (r < 0 || r >= width || c < 0 || c >= height) break;
+            if (r < 0 || r >= height || c < 0 || c >= width) break;
             if (map[r][c] == Player) count++
             else break;
             if (count >= 6) break;
@@ -112,7 +113,7 @@ function CheckWin(Player, row, col) {
             const [dr, dc] = even ? dir2 : [dir2[0], dir2[1] + (dir2[0] !== 0 ? 1 : 0)];
             r += dr;
             c += dc;
-            if (r < 0 || r >= width || c < 0 || c >= height) break;
+            if (r < 0 || r >= height || c < 0 || c >= width) break;
             if (map[r][c] == Player) count++
             else break;
             if (count >= 6) break;
