@@ -12,7 +12,6 @@
 
             // Your Firebase config (you get this from Firebase console)
             const firebaseConfig = {
-                apiKey: "YOUR_API_KEY",
                 authDomain: "hexagonal-tic-tac-toe.firebaseapp.com",
                 databaseURL: "https://hexagonal-tic-tac-toe-default-rtdb.europe-west1.firebasedatabase.app",
                 projectId: "hexagonal-tic-tac-toe",
@@ -32,32 +31,39 @@
 </script>
     </head>
     <body>
-        <div id="menu">
-            <h1>Hexagonal Tic Tac Toe</h1>
-            <div id="playerX"></div>
-            <div id="playerO"></div>
-            <div id="Code"></div>
-            <fieldset>
-                <legend>Create Game</legend>
-                <input type="text" id="create-username"
-                    placeholder="Your Name"><br>
-                <button id="create-btn" onClick="onCreateRoomClick()">Create
-                    Game</button>
-            </fieldset>
-            <fieldset>
-                <legend>Join Game</legend>
-                <input type="text" id="join-username"
-                    placeholder="Your Name"><br>
-                <input type="text" id="join-game-id" placeholder="Game ID"><br>
-                <button id="join-btn" onClick="onJoinRoomClick()">Join Game</button>
-            </fieldset>
-            <fieldset>
-                <legend>Play locally</legend>
-                <button id="local-btn" onclick="StartGame()">Play Local
-                    Game</button>
-            </fieldset>
+        <div id="container">
+            <div id="menu">
+                <h1>Hexagonal Tic Tac Toe</h1>
+                <div id="insidemenu">
+                <fieldset>
+                    <legend>Create Game</legend>
+
+                    <input type="text" id="create-username"
+                        placeholder="Your Name"><br>
+                    <button id="create-btn" onClick="onCreateRoomClick()">Create
+                        Game</button>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Join Game</legend>
+
+                    <input type="text" id="join-username"
+                        placeholder="Your Name"><br>
+                    <input type="text" id="join-game-id"
+                        placeholder="Game ID"><br>
+                    <button id="join-btn" onClick="onJoinRoomClick()">Join
+                        Game</button>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Play locally</legend>
+                    <button id="local-btn" onclick="StartGame()">Play Local
+                        Game</button>
+                </fieldset>
+                </div>
+            </div>
+            <div id="map" style="display : none;"></div>
         </div>
-        <div id="map"></div>
 
         <script src="index.js"></script>
     </body>

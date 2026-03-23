@@ -96,9 +96,8 @@ function Click(e) {
 
     update(ref(db, "games/" + currentRoom), {
         board: map,
-        turn: turn,
-        winner: winner || null,
-        finished: winner != null
+        turn: turn, 
+        winner: winner || null
     });
 
 
@@ -239,15 +238,10 @@ function centerView() {
 function hideMenu() {
     const menu = document.getElementById("menu");
     menu.style.display = "none";
+    const mapDiv = document.getElementById("map");
+    mapDiv.style.display = "block";
 }
 function StartGame(roomCode) {
-    /*const code = document.getElementById("Code");
-    if (roomCode == "000000") {
-        code.style.display = "none";
-    } else {
-        code.innerHTML = `Room Code: ${roomCode}`;
-    }
-*/
     hideMenu();
     createHex();
     centerView();
@@ -271,8 +265,6 @@ function createRoom() {
     set(ref(db, "games/" + roomCode), {
         board: initialMap,
         turn: turn,
-        createdAt: Date.now(),
-        finished: false,
         players: {
             X: {
                 id: Date.now(),
@@ -306,7 +298,6 @@ function joinRoom(roomCode) {
 function listenGame(roomCode) {
     onValue(ref(db, "games/" + roomCode), (snapshot) => {
         const data = snapshot.val();
-        console.log("Data updated:", data);
         if (!data) return;
 
         map = data.board;
@@ -322,9 +313,6 @@ function listenGame(roomCode) {
 
         const playerX = data.players.X?.name || "Waiting...";
         const playerO = data.players.O?.name || "Waiting...";
-
-        document.getElementById("playerX").innerText = "X: " + playerX;
-        document.getElementById("playerO").innerText = "O: " + playerO;
 
         redrawBoard();
         if (winner ){
