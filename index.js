@@ -50,7 +50,6 @@ function Click(e) {
     if (hex.classList.contains("played")) {
         return;
     }
-    alert("click");
     // offline mode
     if (!currentRoom || currentRoom == "000000") {
         // "XOOXXOOXXOOXXOO..."
@@ -98,7 +97,8 @@ function Click(e) {
     update(ref(db, "games/" + currentRoom), {
         board: map,
         turn: turn,
-        winner: winner || null
+        winner: winner || null,
+        finished: winner != null
     });
 
 
@@ -271,6 +271,8 @@ function createRoom() {
     set(ref(db, "games/" + roomCode), {
         board: initialMap,
         turn: turn,
+        createdAt: Date.now(),
+        finished: false,
         players: {
             X: {
                 id: Date.now(),
@@ -325,7 +327,7 @@ function listenGame(roomCode) {
         document.getElementById("playerO").innerText = "O: " + playerO;
 
         redrawBoard();
-        if (winner){
+        if (winner ){
             alert(`${winner} wins!`);
         }
 
